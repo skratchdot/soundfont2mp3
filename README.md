@@ -71,7 +71,7 @@ do
 	mkdir -p "$BASE_FOLDER/channel/0/instrument/$i";
 	for j in {0..127}
 	do
-		soundfont2mp3 -i $i -s "$SOUNDFONT" -o "$BASE_FOLDER/channel/0/instrument/$i/$j.mp3"
+		soundfont2mp3 -i $i -n $j -s "$SOUNDFONT" -o "$BASE_FOLDER/channel/0/instrument/$i/$j.mp3"
 	done
 done
 ```
