@@ -1,0 +1,42 @@
+{
+	"name": "soundfont2mp3",
+	"version": "0.1.0",
+	"description": "a command line utility that lets you extract single note mp3s from soundfont files",
+	"homepage": "https://github.com/skratchdot/soundfont2mp3",
+	"author" : "skratchdot",
+	"preferGlobal" : true,
+	"main" : "index.js",
+	"bin" : {
+		"soundfont2mp3" : "./index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/skratchdot/soundfont2mp3.git"
+	},
+	"bugs": {
+		"url": "https://github.com/skratchdot/soundfont2mp3/issues"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/skratchdot/soundfont2mp3/blob/master/LICENSE-MIT"
+		}
+	],
+	"engines": {
+		"node": ">= 0.6.0"
+	},
+	"dependencies": {
+		"async": "0.2.9",
+		"commander": "2.0.0",
+		"jsmidgen": "0.1.2"
+	},
+	"keywords": [
+		"soundfont",
+		"fluidsynth",
+		"sox",
+		"lame",
+		"midi",
+		"wave",
+		"mp3"
+	]
+}
