@@ -61,7 +61,7 @@ async.series({
 		track.addEvent(new Midi.MetaEvent({
 			type: Midi.MetaEvent.COPYRIGHT,
 			data: 'skratchdot.com',
-			time: program.endtick
+			time: program.duration + program.endtick
 		}));
 		fs.writeFile(fileMidi, file.toBytes(), 'binary', function (err) {
 			console.log('Temp Midi File Created: ', fileMidi);
