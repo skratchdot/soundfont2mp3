@@ -4,7 +4,7 @@ var packageInfo = require('./package.json'),
 	async = require('async'),
 	program = require('commander'),
 	cp = require('child_process'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	Midi = require('jsmidgen'),
 	file = new Midi.File(),
 	track = new Midi.Track(),
@@ -12,7 +12,11 @@ var packageInfo = require('./package.json'),
 	fileMidi = prefix + '.mid',
 	fileWave = prefix + '.wav',
 	fileWaveTrimmed = prefix + '_trimmed.wav',
-	endsWith;
+	defaultCallback = 'window.timbrejs_audiojsonp',
+	endsWith,
+	isMp3 = false,
+	isWav = false,
+	isJs = false;
 
 program
 	.version(packageInfo.version, '-v, --version')
@@ -26,6 +30,7 @@ program
 	.option('-e, --endtick <endtick>', 'the tick number of the end of the track', 1024)
 	.option('-s, --soundfont <soundfont>', 'the soundfont file', null)
 	.option('-o, --output <output>', 'the mp3 file to output', null)
+	.option('--callback <callback>', 'when output is .js, this is the callback function name.', defaultCallback)
 	.option('--no-reverb', 'don\'t add reverb')
 	.option('--no-chorus', 'don\'t add chorus')
 	.parse(process.argv);
@@ -47,8 +52,15 @@ async.series({
 			}
 		});
 	},
-	mp3FilePassedIn: function (callback) {
+	validFilePassedIn: function (callback) {
 		if (typeof program.output === 'string' && endsWith(program.output, '.mp3')) {
+			isMp3 = true;
+			callback();
+		} else if (typeof program.output === 'string' && endsWith(program.output, '.wav')) {
+			isWav = true;
+			callback();
+		} else if (typeof program.output === 'string' && endsWith(program.output, '.js')) {
+			isJs = true;
 			callback();
 		} else {
 			callback(new Error('Valid mp3 file name not passed in.'), null);
@@ -88,13 +100,53 @@ async.series({
 			callback(err);
 		});
 	},
-	createMp3: function (callback) {
-		cp.execFile('lame', ['-v', fileWaveTrimmed, program.output], {}, function (err) {
-			if (!err) {
-				console.log('MP3 File Created: ', program.output);
-			}
-			callback(err);
-		});
+	finalizeWav: function (callback) {
+		if (isWav) {
+			fs.copy(fileWaveTrimmed, program.output, function (err) {
+				if (!err) {
+					console.log('Wave File Created: ', program.output);
+				}
+				callback(err);
+			});
+		} else {
+			callback();
+		}
+	},
+	finalizeMp3: function (callback) {
+		if (isMp3) {
+			cp.execFile('lame', ['-v', fileWaveTrimmed, program.output], {}, function (err) {
+				if (!err) {
+					console.log('MP3 File Created: ', program.output);
+				}
+				callback(err);
+			});
+		} else {
+			callback();
+		}
+	},
+	// code taken from: http://mohayonao.github.io/timbre.js/misc/audio-jsonp.js
+	finalizeJs: function (callback) {
+		if (isJs) {
+			fs.readFile(fileWaveTrimmed, function (err, data) {
+				if (err) {
+					callback(err);
+				} else {
+					var content = defaultCallback;
+					if (program.callback && program.callback.length > 0) {
+						content = program.callback;
+					}
+					content += '("' + data.toString('base64') + '", "wav");';
+					fs.writeFile(program.output, content, function (err) {
+						if (!err) {
+							console.log('JS File Created: ', program.output);
+						}
+						callback(err);
+					});
+				}
+			});
+		} else {
+			callback();
+		}
 	},
 	removeMidi: function (callback) {
 		fs.unlink(fileMidi, function (err) {
