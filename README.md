@@ -30,7 +30,7 @@ Install the command line tool globally by running:
 	-g, --gain <gain>              the velocity of the note
 	-e, --endtick <endtick>        the tick number of the end of the track
 	-s, --soundfont <soundfont>    the soundfont file
-	-o, --output <output>          the mp3 file to output
+	-o, --output <output>          the .mp3/.wav/.js/.mid file to output
 	--no-reverb                    don't add reverb
 	--no-chorus                    don't add chorus
 
