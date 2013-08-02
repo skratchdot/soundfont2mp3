@@ -14,6 +14,7 @@ var packageInfo = require('./package.json'),
 	fileWaveTrimmed = prefix + '_trimmed.wav',
 	defaultCallback = 'window.timbrejs_audiojsonp',
 	endsWith,
+	isMid = false,
 	isMp3 = false,
 	isWav = false,
 	isJs = false;
@@ -29,7 +30,7 @@ program
 	.option('-g, --gain <gain>', 'the velocity of the note', 0.2)
 	.option('-e, --endtick <endtick>', 'the tick number of the end of the track', 1024)
 	.option('-s, --soundfont <soundfont>', 'the soundfont file', null)
-	.option('-o, --output <output>', 'the mp3 file to output', null)
+	.option('-o, --output <output>', 'the .mp3/.wav/.js/.mid file to output', null)
 	.option('--callback <callback>', 'when output is .js, this is the callback function name.', defaultCallback)
 	.option('--no-reverb', 'don\'t add reverb')
 	.option('--no-chorus', 'don\'t add chorus')
@@ -61,6 +62,9 @@ async.series({
 			callback();
 		} else if (typeof program.output === 'string' && endsWith(program.output, '.js')) {
 			isJs = true;
+			callback();
+		}  else if (typeof program.output === 'string' && endsWith(program.output, '.mid')) {
+			isMid = true;
 			callback();
 		} else {
 			callback(new Error('Valid mp3 file name not passed in.'), null);
@@ -99,6 +103,18 @@ async.series({
 			}
 			callback(err);
 		});
+	},
+	finalizeMid: function (callback) {
+		if (isMid) {
+			fs.copy(fileMidi, program.output, function (err) {
+				if (!err) {
+					console.log('Midi File Created: ', program.output);
+				}
+				callback(err);
+			});
+		} else {
+			callback();
+		}
 	},
 	finalizeWav: function (callback) {
 		if (isWav) {
