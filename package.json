@@ -1,6 +1,6 @@
 {
 	"name": "soundfont2mp3",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"description": "a command line utility that lets you extract single note mp3s from soundfont files",
 	"homepage": "https://github.com/skratchdot/soundfont2mp3",
 	"author" : "skratchdot",

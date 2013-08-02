@@ -97,7 +97,7 @@ async.series({
 		});
 	},
 	trimSilence: function (callback) {
-		cp.execFile('sox', [fileWave, fileWaveTrimmed, 'reverse', 'silence', '1', '0.1', '0.1%', 'reverse'], {}, function (err) {
+		cp.execFile('sox', [fileWave, fileWaveTrimmed, 'reverse', 'silence', '1', '0.01', '0.01%', 'reverse'], {}, function (err) {
 			if (!err) {
 				console.log('Silence trimmed from wave file: ', fileWaveTrimmed);
 			}
