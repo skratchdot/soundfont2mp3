@@ -10,7 +10,7 @@ var packageInfo = require('./package.json'),
 	track = new Midi.Track(),
 	prefix = 'soundfont2mp3_' + (new Date()).getTime(),
 	fileMidi = prefix + '.mid',
-	fileWave = prefix + '.wav',
+	fileRaw = prefix + '.raw',
 	fileWaveTrimmed = prefix + '_trimmed.wav',
 	defaultCallback = 'window.timbrejs_audiojsonp',
 	endsWith,
@@ -84,20 +84,24 @@ async.series({
 			callback(err, fileMidi);
 		});
 	},
-	createWav: function (callback) {
+	createRaw: function (callback) {
 		cp.execFile('fluidsynth', ['-g', program.gain,
 		                           '-R', (program.reverb ? '1' : '0'),
 		                           '-C', (program.chorus ? '1' : '0'),
-		                           '-F', fileWave,
+		                           '-F', fileRaw,
 		                           program.soundfont, fileMidi], {}, function (err) {
 			if (!err) {
-				console.log('Temp Wave File Created: ', fileWave);
+				console.log('Temp Raw File Created: ', fileRaw);
 			}
 			callback(err);
 		});
 	},
 	trimSilence: function (callback) {
-		cp.execFile('sox', [fileWave, fileWaveTrimmed, 'reverse', 'silence', '1', '0.01', '0.01%', 'reverse'], {}, function (err) {
+		cp.execFile('sox', [
+				'-t', 's16', '-r', '44100',
+				fileRaw, fileWaveTrimmed,
+				'reverse', 'silence', '1', '0.01', '0.01%', 'reverse'
+			], {}, function (err) {
 			if (!err) {
 				console.log('Silence trimmed from wave file: ', fileWaveTrimmed);
 			}
@@ -170,9 +174,9 @@ async.series({
 			callback(err);
 		});
 	},
-	removeWave: function (callback) {
-		fs.unlink(fileWave, function (err) {
-			console.log('Removed File: ', fileWave);
+	removeRaw: function (callback) {
+		fs.unlink(fileRaw, function (err) {
+			console.log('Removed File: ', fileRaw);
 			callback(err);
 		});
 	},
