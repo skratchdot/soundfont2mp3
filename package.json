@@ -1,13 +1,13 @@
 {
 	"name": "soundfont2mp3",
-	"version": "0.1.4",
+	"version": "0.2.0",
 	"description": "a command line utility that lets you extract single note mp3s from soundfont files",
 	"homepage": "https://github.com/skratchdot/soundfont2mp3",
-	"author" : "skratchdot",
-	"preferGlobal" : true,
-	"main" : "index.js",
-	"bin" : {
-		"soundfont2mp3" : "./index.js"
+	"author": "skratchdot",
+	"preferGlobal": true,
+	"main": "index.js",
+	"bin": {
+		"soundfont2mp3": "./index.js"
 	},
 	"repository": {
 		"type": "git",
@@ -26,10 +26,10 @@
 		"node": ">= 0.6.0"
 	},
 	"dependencies": {
-		"async": "0.2.9",
-		"commander": "2.0.0",
-		"fs-extra": "0.6.3",
-		"jsmidgen": "0.1.2"
+		"async": "^2.6.1",
+		"commander": "^2.15.1",
+		"fs-extra": "^6.0.1",
+		"jsmidgen": "^0.1.5"
 	},
 	"keywords": [
 		"soundfont",
