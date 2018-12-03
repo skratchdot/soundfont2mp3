@@ -397,5 +397,11 @@ exports = module.exports = function processSoundfont (options) {
 			);
 		}
 		// Support for .finally() is spotty; this is a suitable workaround
-	).then(cleanup).catch(cleanup);
+	).then(cleanup).catch(
+		(err) => {
+			cleanup();
+
+			return Promise.reject(err);
+		}
+	);
 };
