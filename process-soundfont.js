@@ -238,7 +238,7 @@ function removeFile(file) {
 	);
 }
 
-exports = function processSoundfont(options) {
+exports = module.exports = function processSoundfont(options) {
 	var fileTypeInfo,
 		stagingDir,
 		prefix,
