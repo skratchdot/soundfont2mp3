@@ -9,4 +9,4 @@ SoundfontProcessingError.prototype.name = 'SoundfontProcessingError';
 
 SoundfontProcessingError.prototype.constructor = SoundfontProcessingError;
 
-exports = SoundfontProcessingError;
+exports = module.exports = SoundfontProcessingError;
