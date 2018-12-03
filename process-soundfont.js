@@ -263,11 +263,11 @@ exports = module.exports = function processSoundfont (options) {
 		throw new SoundfontProcessingError('No output file specified');
 	}
 
-	if (!options.instrument) {
+	if (typeof options.instrument === 'undefined') {
 		throw new SoundfontProcessingError('No instrument specified');
 	}
 
-	if (!options.note) {
+	if (typeof options.note === 'undefined') {
 		throw new SoundfontProcessingError('No note specified');
 	}
 
