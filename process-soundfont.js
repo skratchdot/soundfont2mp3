@@ -381,5 +381,3 @@ exports = function processSoundfont(options) {
 	// Support for .finally() is spotty; this is a suitable workaround
 	).then(cleanup).catch(cleanup);
 };
-
-exports = processSoundfont;
