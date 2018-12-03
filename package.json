@@ -7,7 +7,7 @@
 	"preferGlobal": true,
 	"main": "index.js",
 	"bin": {
-		"soundfont2mp3": "node ./cli.js"
+		"soundfont2mp3": "./cli.js"
 	},
 	"repository": {
 		"type": "git",
