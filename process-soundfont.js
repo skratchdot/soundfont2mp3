@@ -1,5 +1,6 @@
 var cp = require('child_process'),
 	fs = require('fs-extra'),
+	path = require('path'),
 	Midi = require('jsmidgen'),
 	SoundfontProcessingError = require('./soundfont-processing-error'),
 	defaultCallback = 'window.timbrejs_audiojsonp';
