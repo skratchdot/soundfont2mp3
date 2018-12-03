@@ -1,3 +1,5 @@
+'use strict';
+
 var cp = require('child_process'),
 	fs = require('fs-extra'),
 	path = require('path'),
@@ -6,11 +8,11 @@ var cp = require('child_process'),
 	defaultCallback = 'window.timbrejs_audiojsonp';
 
 // helper function
-function endsWith(str, suffix) {
+function endsWith (str, suffix) {
 	return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 
-function setDefaultOptions(options) {
+function setDefaultOptions (options) {
 	if (!options) {
 		options = {};
 	}
@@ -28,7 +30,7 @@ function setDefaultOptions(options) {
 	}
 
 	if (options.endtick === undefined) {
-		options.endtick = 1024
+		options.endtick = 1024;
 	}
 
 	if (options.channel === undefined) {
@@ -44,15 +46,15 @@ function setDefaultOptions(options) {
 	}
 
 	if (options.debug === undefined) {
-		options.debug = function() {};
+		options.debug = function () {};
 	}
 
 	return options;
 }
 
-function soundfontExists(soundfont, debug) {
+function soundfontExists (soundfont, debug) {
 	return new Promise(
-		function(resolve, reject) {
+		function (resolve, reject) {
 			fs.exists(soundfont || '', function (exists) {
 				if (exists) {
 					debug('Using Soundfont: ', soundfont);
@@ -65,7 +67,7 @@ function soundfontExists(soundfont, debug) {
 	);
 };
 
-function validateOutputFile(output) {
+function validateOutputFile (output) {
 	var isMp3,
 		isWav,
 		isJs,
@@ -87,12 +89,12 @@ function validateOutputFile(output) {
 		isMp3: isMp3,
 		isWav: isWav,
 		isJs: isJs,
-		isMid: isMid,
+		isMid: isMid
 	};
 }
 
-function createMidi(options) {
-	var track = new Midi.Track()
+function createMidi (options) {
+	var track = new Midi.Track(),
 		file = new Midi.File();
 	file.addTrack(track);
 	track.setInstrument(options.channel, options.instrument);
@@ -104,7 +106,7 @@ function createMidi(options) {
 	}));
 
 	return new Promise(
-		function(resolve, reject) {
+		function (resolve, reject) {
 			fs.writeFile(
 				options.midiOutFile,
 				file.toBytes(),
@@ -118,14 +120,14 @@ function createMidi(options) {
 					options.debug('Temp Midi File Created: ', options.midiOutFile);
 					resolve(options.midiOutFile);
 				}
-			)
+			);
 		}
 	);
 }
 
-function createRawFile(options) {
+function createRawFile (options) {
 	return new Promise(
-		function(resolve, reject) {
+		function (resolve, reject) {
 			cp.execFile('fluidsynth', ['-g', options.gain,
 				'-R', (options.reverb ? '1' : '0'),
 				'-C', (options.chorus ? '1' : '0'),
@@ -133,19 +135,19 @@ function createRawFile(options) {
 				options.soundfont, options.midiOutFile
 			], {}, function (err) {
 				if (!err) {
-					options.debug('Temp Raw File Created: ', fileRaw);
+					options.debug('Temp Raw File Created: ', options.rawOutFile);
 					resolve();
 					return;
 				}
 				reject(err);
-			})
+			});
 		}
 	);
 }
 
-function trimSilence(options) {
+function trimSilence (options) {
 	return new Promise(
-		function(resolve, reject) {
+		function (resolve, reject) {
 			cp.execFile('sox', [
 				'-t', 's16', '-r', '44100',
 				options.rawOutFile, options.trimmedWaveOutFile,
@@ -162,9 +164,9 @@ function trimSilence(options) {
 	);
 }
 
-function copyToOutput(options) {
+function copyToOutput (options) {
 	return new Promise(
-		function(resolve, reject) {
+		function (resolve, reject) {
 			fs.copy(options.sourceFile, options.destinationFile, function (err) {
 				if (!err) {
 					options.debug(options.successMessage);
@@ -177,9 +179,9 @@ function copyToOutput(options) {
 	);
 }
 
-function createAndCopyMp3(options) {
+function createAndCopyMp3 (options) {
 	return new Promise(
-		function(resolve, reject) {
+		function (resolve, reject) {
 			cp.execFile(
 				'lame',
 				[
@@ -188,21 +190,21 @@ function createAndCopyMp3(options) {
 					options.output
 				],
 				{},
-				function(err) {
-				if (!err) {
-					options.debug('MP3 File Created: ', options.output);
-					resolve();
-					return;
-				}
-				reject(err);
-			});
+				function (err) {
+					if (!err) {
+						options.debug('MP3 File Created: ', options.output);
+						resolve();
+						return;
+					}
+					reject(err);
+				});
 		}
 	);
 }
 
-function copyToJS(options) {
+function copyToJS (options) {
 	return new Promise(
-		function(resolve, reject) {
+		function (resolve, reject) {
 			// code taken from: http://mohayonao.github.io/timbre.js/misc/audio-jsonp.js
 			fs.readFile(options.trimmedWaveOutFile, function (err, data) {
 				if (err) {
@@ -227,9 +229,9 @@ function copyToJS(options) {
 	);
 }
 
-function removeFile(file, debug) {
+function removeFile (file, debug) {
 	return new Promise(
-		function(resolve, reject) {
+		function (resolve, reject) {
 			fs.unlink(file, function (err) {
 				if (err) {
 					reject(err);
@@ -243,7 +245,7 @@ function removeFile(file, debug) {
 	);
 }
 
-exports = module.exports = function processSoundfont(options) {
+exports = module.exports = function processSoundfont (options) {
 	var fileTypeInfo,
 		stagingDir,
 		prefix,
@@ -254,19 +256,19 @@ exports = module.exports = function processSoundfont(options) {
 	options = setDefaultOptions(options);
 
 	if (!options.soundfont) {
-		throw new SoundfontProcessingError("No soundfont file specified");
+		throw new SoundfontProcessingError('No soundfont file specified');
 	}
 
 	if (!options.output) {
-		throw new SoundfontProcessingError("No output file specified");
+		throw new SoundfontProcessingError('No output file specified');
 	}
 
 	if (!options.instrument) {
-		throw new SoundfontProcessingError("No instrument specified");
+		throw new SoundfontProcessingError('No instrument specified');
 	}
 
 	if (!options.note) {
-		throw new SoundfontProcessingError("No note specified");
+		throw new SoundfontProcessingError('No note specified');
 	}
 
 	fileTypeInfo = validateOutputFile(options.output);
@@ -277,37 +279,39 @@ exports = module.exports = function processSoundfont(options) {
 	rawOutFile = path.join(stagingDir, prefix + '.raw');
 	trimmedWaveOutFile = path.join(stagingDir, prefix + '_trimmed.wav');
 
-	function cleanup() {
+	function cleanup () {
 		return Promise.all([
 			removeFile(midiOutFile, options.debug).then(
 				// Make sure nothing is returned if removal succeeds
-				function() {}
-			// Prevent rejection of one removal from rejecting the Promise.all()
-			// promise before the other removals are resolved
+				function () {}
+				// Prevent rejection of one removal from rejecting the Promise.all()
+				// promise before the other removals are resolved
 			).catch(
-				function(err) {
+				function (err) {
 					return err;
 				}
 			),
 			removeFile(rawOutFile, options.debug).then(
-				function() {}
+				function () {}
 			).catch(
-				function(err) {
+				function (err) {
 					return err;
 				}
 			),
 			removeFile(trimmedWaveOutFile, options.debug).then(
-				function() {}
+				function () {}
 			).catch(
-				function(err) {
+				function (err) {
 					return err;
 				}
-			),
+			)
 		]).then(
-			function(results) {
-				var errors = [],
-					resultIndex = 0,
-					resultsLength = results.length;
+			function (results) {
+				var errors = [];
+
+				var resultIndex = 0;
+
+				var resultsLength = results.length;
 
 				for (; resultIndex < resultsLength; resultIndex++) {
 					if (results[resultIndex]) {
@@ -324,7 +328,7 @@ exports = module.exports = function processSoundfont(options) {
 
 	// make sure programs/files exist, then create mid/wav/mp3 files, then cleanup
 	return soundfontExists(options.soundfont, options.debug).then(
-		function() {
+		function () {
 			return createMidi({
 				midiOutFile: midiOutFile,
 				channel: options.channel,
@@ -333,34 +337,34 @@ exports = module.exports = function processSoundfont(options) {
 				duration: options.duration,
 				velocity: options.velocity,
 				endtick: options.endtick,
-				debug: options.debug,
+				debug: options.debug
 			}).then(
-				function() {
+				function () {
 					return createRawFile({
 						soundfont: options.soundfont,
 						reverb: options.reverb,
 						chorus: options.chorus,
 						gain: options.gain,
 						rawOutFile: rawOutFile,
-						debug: options.debug,
+						debug: options.debug
 					});
 				}
 			).then(
-				function() {
+				function () {
 					return trimSilence({
 						rawOutFile: rawOutFile,
 						trimmedWaveOutFile: trimmedWaveOutFile,
-						debug: options.debug,
+						debug: options.debug
 					});
 				}
 			).then(
-				function() {
+				function () {
 					if (fileTypeInfo.isMid) {
 						return copyToOutput({
 							sourceFile: midiOutFile,
 							destinationFile: options.output,
 							successMessage: 'Midi File Created: ' + options.output,
-							debug: options.debug,
+							debug: options.debug
 						});
 					}
 
@@ -369,7 +373,7 @@ exports = module.exports = function processSoundfont(options) {
 							sourceFile: trimmedWaveOutFile,
 							destinationFile: options.output,
 							successMessage: 'Wave File Created: ' + options.output,
-							debug: options.debug,
+							debug: options.debug
 						});
 					}
 
@@ -377,7 +381,7 @@ exports = module.exports = function processSoundfont(options) {
 						return createAndCopyMp3({
 							trimmedWaveOutFile: trimmedWaveOutFile,
 							output: options.output,
-							debug: options.debug,
+							debug: options.debug
 						});
 					}
 
@@ -386,12 +390,12 @@ exports = module.exports = function processSoundfont(options) {
 							trimmedWaveOutFile: trimmedWaveOutFile,
 							output: options.output,
 							callback: options.callback,
-							debug: options.debug,
+							debug: options.debug
 						});
 					}
 				}
 			);
 		}
-	// Support for .finally() is spotty; this is a suitable workaround
+		// Support for .finally() is spotty; this is a suitable workaround
 	).then(cleanup).catch(cleanup);
 };

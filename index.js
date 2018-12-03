@@ -1,3 +1,5 @@
+'use strict';
+
 exports = module.exports = {
-	processSoundfont: require('./process-soundfont'),
+	processSoundfont: require('./process-soundfont')
 };

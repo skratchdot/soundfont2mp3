@@ -1,6 +1,8 @@
-function SoundfontProcessingError(message) {
-  this.message = message;
-  this.stack = (new Error()).stack;
+'use strict';
+
+function SoundfontProcessingError (message) {
+	this.message = message;
+	this.stack = (new Error()).stack;
 };
 
 SoundfontProcessingError.prototype = Object.create(Error.prototype);
