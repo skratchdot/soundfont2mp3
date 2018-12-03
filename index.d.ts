@@ -12,6 +12,7 @@ export interface IProcessingOptions {
   staging?: string;
   channel?: number;
   callback?: string;
+  debug?: (any...) => void;
 }
 
 declare module "soundfont2mp3" {

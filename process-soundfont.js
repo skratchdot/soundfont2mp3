@@ -43,15 +43,19 @@ function setDefaultOptions(options) {
 		options.chorus = true;
 	}
 
+	if (options.debug === undefined) {
+		options.debug = function() {};
+	}
+
 	return options;
 }
 
-function soundfontExists(soundfont) {
+function soundfontExists(soundfont, debug) {
 	return new Promise(
 		function(resolve, reject) {
 			fs.exists(soundfont || '', function (exists) {
 				if (exists) {
-					console.log('Using Soundfont: ', soundfont);
+					debug('Using Soundfont: ', soundfont);
 					resolve();
 				} else {
 					reject(new SoundfontProcessingError('The soundfont passed in does not exist.'));
@@ -111,7 +115,7 @@ function createMidi(options) {
 						return;
 					}
 
-					console.log('Temp Midi File Created: ', options.midiOutFile);
+					options.debug('Temp Midi File Created: ', options.midiOutFile);
 					resolve(options.midiOutFile);
 				}
 			)
@@ -129,7 +133,7 @@ function createRawFile(options) {
 				options.soundfont, options.midiOutFile
 			], {}, function (err) {
 				if (!err) {
-					console.log('Temp Raw File Created: ', fileRaw);
+					options.debug('Temp Raw File Created: ', fileRaw);
 					resolve();
 					return;
 				}
@@ -148,7 +152,7 @@ function trimSilence(options) {
 				'reverse', 'silence', '1', '0.01', '0.01%', 'reverse'
 			], {}, function (err) {
 				if (!err) {
-					console.log('Silence trimmed from wave file: ', options.trimmedWaveOutFile);
+					options.debug('Silence trimmed from wave file: ', options.trimmedWaveOutFile);
 					resolve();
 					return;
 				}
@@ -163,7 +167,7 @@ function copyToOutput(options) {
 		function(resolve, reject) {
 			fs.copy(options.sourceFile, options.destinationFile, function (err) {
 				if (!err) {
-					console.log(options.successMessage);
+					options.debug(options.successMessage);
 					resolve();
 					return;
 				}
@@ -186,7 +190,7 @@ function createAndCopyMp3(options) {
 				{},
 				function(err) {
 				if (!err) {
-					console.log('MP3 File Created: ', options.output);
+					options.debug('MP3 File Created: ', options.output);
 					resolve();
 					return;
 				}
@@ -211,7 +215,7 @@ function copyToJS(options) {
 					content += '("' + data.toString('base64') + '", "wav");';
 					fs.writeFile(options.output, content, function (err) {
 						if (!err) {
-							console.log('JS File Created: ', options.output);
+							options.debug('JS File Created: ', options.output);
 							resolve();
 							return;
 						}
@@ -223,7 +227,7 @@ function copyToJS(options) {
 	);
 }
 
-function removeFile(file) {
+function removeFile(file, debug) {
 	return new Promise(
 		function(resolve, reject) {
 			fs.unlink(file, function (err) {
@@ -232,7 +236,7 @@ function removeFile(file) {
 					return;
 				}
 
-				console.log('Removed File: ', file);
+				debug('Removed File: ', file);
 				resolve();
 			});
 		}
@@ -275,22 +279,24 @@ exports = module.exports = function processSoundfont(options) {
 
 	function cleanup() {
 		return Promise.all([
-			removeFile(midiOutFile).then(
+			removeFile(midiOutFile, options.debug).then(
 				// Make sure nothing is returned if removal succeeds
 				function() {}
+			// Prevent rejection of one removal from rejecting the Promise.all()
+			// promise before the other removals are resolved
 			).catch(
 				function(err) {
 					return err;
 				}
 			),
-			removeFile(rawOutFile).then(
+			removeFile(rawOutFile, options.debug).then(
 				function() {}
 			).catch(
 				function(err) {
 					return err;
 				}
 			),
-			removeFile(trimmedWaveOutFile).then(
+			removeFile(trimmedWaveOutFile, options.debug).then(
 				function() {}
 			).catch(
 				function(err) {
@@ -317,7 +323,7 @@ exports = module.exports = function processSoundfont(options) {
 	}
 
 	// make sure programs/files exist, then create mid/wav/mp3 files, then cleanup
-	return soundfontExists(options.soundfont).then(
+	return soundfontExists(options.soundfont, options.debug).then(
 		function() {
 			return createMidi({
 				midiOutFile: midiOutFile,
@@ -327,6 +333,7 @@ exports = module.exports = function processSoundfont(options) {
 				duration: options.duration,
 				velocity: options.velocity,
 				endtick: options.endtick,
+				debug: options.debug,
 			}).then(
 				function() {
 					return createRawFile({
@@ -335,6 +342,7 @@ exports = module.exports = function processSoundfont(options) {
 						chorus: options.chorus,
 						gain: options.gain,
 						rawOutFile: rawOutFile,
+						debug: options.debug,
 					});
 				}
 			).then(
@@ -342,6 +350,7 @@ exports = module.exports = function processSoundfont(options) {
 					return trimSilence({
 						rawOutFile: rawOutFile,
 						trimmedWaveOutFile: trimmedWaveOutFile,
+						debug: options.debug,
 					});
 				}
 			).then(
@@ -351,6 +360,7 @@ exports = module.exports = function processSoundfont(options) {
 							sourceFile: midiOutFile,
 							destinationFile: options.output,
 							successMessage: 'Midi File Created: ' + options.output,
+							debug: options.debug,
 						});
 					}
 
@@ -359,6 +369,7 @@ exports = module.exports = function processSoundfont(options) {
 							sourceFile: trimmedWaveOutFile,
 							destinationFile: options.output,
 							successMessage: 'Wave File Created: ' + options.output,
+							debug: options.debug,
 						});
 					}
 
@@ -366,6 +377,7 @@ exports = module.exports = function processSoundfont(options) {
 						return createAndCopyMp3({
 							trimmedWaveOutFile: trimmedWaveOutFile,
 							output: options.output,
+							debug: options.debug,
 						});
 					}
 
@@ -374,6 +386,7 @@ exports = module.exports = function processSoundfont(options) {
 							trimmedWaveOutFile: trimmedWaveOutFile,
 							output: options.output,
 							callback: options.callback,
+							debug: options.debug,
 						});
 					}
 				}
