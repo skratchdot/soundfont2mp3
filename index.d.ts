@@ -9,7 +9,6 @@ export interface IProcessingOptions {
   gain?: number;
   reverb?: boolean;
   chorus?: boolean;
-  staging?: string;
   channel?: number;
   callback?: string;
   debug?: (...any) => void;

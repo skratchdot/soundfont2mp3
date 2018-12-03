@@ -18,7 +18,6 @@ program
 	.option('-e, --endtick <endtick>', 'the tick number of the end of the track', 1024)
 	.option('-s, --soundfont <soundfont>', 'the soundfont file', null)
 	.option('-o, --output <output>', 'the .mp3/.wav/.js/.mid file to output', null)
-	.option('--staging <directory>', 'directory in which to place intermediate files generated during the process', process.cwd())
 	.option('--callback <callback>', 'when output is .js, this is the callback function name.')
 	.option('--no-reverb', 'don\'t add reverb')
 	.option('--no-chorus', 'don\'t add chorus')
@@ -35,7 +34,6 @@ var options = {
 	gain: program.gain,
 	reverb: program.reverb,
 	chorus: program.chorus,
-	staging: program.staging,
 	channel: program.channel,
 	callback: program.callback,
 	debug: console.log
