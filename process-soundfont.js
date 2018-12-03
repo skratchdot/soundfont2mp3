@@ -126,6 +126,14 @@ function createMidi (options) {
 }
 
 function createRawFile (options) {
+	if (!options.midiOutFile) {
+		throw new SoundfontProcessingError('MIDI temp output file is required to create the raw file');
+	}
+
+	if (!options.rawOutFile) {
+		throw new SoundfontProcessingError('Raw data filename is required');
+	}
+
 	return new Promise(
 		function (resolve, reject) {
 			cp.execFile('fluidsynth', ['-g', options.gain,
@@ -345,6 +353,7 @@ exports = module.exports = function processSoundfont (options) {
 						reverb: options.reverb,
 						chorus: options.chorus,
 						gain: options.gain,
+						midiOutFile: midiOutFile,
 						rawOutFile: rawOutFile,
 						debug: options.debug
 					});
