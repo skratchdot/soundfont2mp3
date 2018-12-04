@@ -5,6 +5,7 @@ var packageInfo = require('./package.json'),
 	program = require('commander'),
 	cp = require('child_process'),
 	fs = require('fs-extra'),
+	path = require('path'),
 	Midi = require('jsmidgen'),
 	file = new Midi.File(),
 	track = new Midi.Track(),
@@ -31,10 +32,15 @@ program
 	.option('-e, --endtick <endtick>', 'the tick number of the end of the track', 1024)
 	.option('-s, --soundfont <soundfont>', 'the soundfont file', null)
 	.option('-o, --output <output>', 'the .mp3/.wav/.js/.mid file to output', null)
+	.option('--staging <directory>', 'directory in which to place intermediate files generated during the process', process.cwd())
 	.option('--callback <callback>', 'when output is .js, this is the callback function name.', defaultCallback)
 	.option('--no-reverb', 'don\'t add reverb')
 	.option('--no-chorus', 'don\'t add chorus')
 	.parse(process.argv);
+
+fileMidi = path.resolve(program.staging, fileMidi);
+fileRaw = path.resolve(program.staging, fileRaw);
+fileWaveTrimmed = path.resolve(program.staging, fileWaveTrimmed);
 
 // helper function
 endsWith = function (str, suffix) {
