@@ -11,6 +11,7 @@ export interface IProcessingOptions {
   chorus?: boolean;
   channel?: number;
   callback?: string;
+  stagingDir?: string;
   debug?: (...any) => void;
 }
 

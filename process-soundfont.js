@@ -255,7 +255,8 @@ function removeFile (file, debug) {
 
 exports = module.exports = function processSoundfont (options) {
 	var fileTypeInfo,
-		prefix,
+		stagingDir,
+		prefix = 'soundfont2mp3_' + (new Date()).getTime(),
 		midiOutFile,
 		rawOutFile,
 		trimmedWaveOutFile;
@@ -280,10 +281,10 @@ exports = module.exports = function processSoundfont (options) {
 
 	fileTypeInfo = validateOutputFile(options.output);
 
-	prefix = 'soundfont2mp3_' + (new Date()).getTime();
-	midiOutFile = prefix + '.mid';
-	rawOutFile = prefix + '.raw';
-	trimmedWaveOutFile = prefix + '_trimmed.wav';
+	stagingDir = options.stagingDir || process.cwd();
+	midiOutFile = path.resolve(stagingDir, prefix + '.mid');
+	rawOutFile = path.resolve(stagingDir, prefix + '.raw');
+	trimmedWaveOutFile = path.resolve(stagingDir, prefix + '_trimmed.wav');
 
 	function cleanup () {
 		return Promise.all([
