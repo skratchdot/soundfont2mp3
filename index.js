@@ -38,7 +38,7 @@ program
 
 // helper function
 endsWith = function (str, suffix) {
-    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+	return str.indexOf(suffix, str.length - suffix.length) !== -1;
 };
 
 // make sure programs/files exist, then create mid/wav/mp3 files, then cleanup
@@ -63,7 +63,7 @@ async.series({
 		} else if (typeof program.output === 'string' && endsWith(program.output, '.js')) {
 			isJs = true;
 			callback();
-		}  else if (typeof program.output === 'string' && endsWith(program.output, '.mid')) {
+		} else if (typeof program.output === 'string' && endsWith(program.output, '.mid')) {
 			isMid = true;
 			callback();
 		} else {
@@ -85,23 +85,30 @@ async.series({
 		});
 	},
 	createRaw: function (callback) {
-		cp.execFile('fluidsynth', ['-g', program.gain,
-		                           '-R', (program.reverb ? '1' : '0'),
-		                           '-C', (program.chorus ? '1' : '0'),
-		                           '-F', fileRaw,
-		                           program.soundfont, fileMidi], {}, function (err) {
-			if (!err) {
-				console.log('Temp Raw File Created: ', fileRaw);
+		cp.execFile(
+			'fluidsynth',
+			[
+				'-g', program.gain,
+				'-R', (program.reverb ? '1' : '0'),
+				'-C', (program.chorus ? '1' : '0'),
+				'-F', fileRaw,
+				program.soundfont, fileMidi
+			],
+			{},
+			function (err) {
+				if (!err) {
+					console.log('Temp Raw File Created: ', fileRaw);
+				}
+				callback(err);
 			}
-			callback(err);
-		});
+		);
 	},
 	trimSilence: function (callback) {
 		cp.execFile('sox', [
-				'-t', 's16', '-r', '44100',
-				fileRaw, fileWaveTrimmed,
-				'reverse', 'silence', '1', '0.01', '0.01%', 'reverse'
-			], {}, function (err) {
+			'-t', 's16', '-r', '44100',
+			fileRaw, fileWaveTrimmed,
+			'reverse', 'silence', '1', '0.01', '0.01%', 'reverse'
+		], {}, function (err) {
 			if (!err) {
 				console.log('Silence trimmed from wave file: ', fileWaveTrimmed);
 			}
